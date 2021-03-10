@@ -12,11 +12,12 @@
 #include <cmsis_gcc.h> // for intrinsics (__x functions)
 #include "stm32l476xx.h"
 #include "stm32l4xx_hal.h"
+#include "debug.h"
 #include "timers.h"
 #include "scheduler.h"
 
 #define THREAD_ID_INVALID	(-1)
-#define MAX_THREADS			(100)
+#define MAX_THREADS			(20)
 #define TIMESLICE_MS		(10)
 
 // local types
@@ -35,7 +36,7 @@ typedef struct {
  * type for thread stack frame
  */
 typedef struct {
-	uint32_t space[128];
+	uint32_t space[256];
 	uint32_t dummy;
 	uint32_t lr_irq_dummy;
 
@@ -136,15 +137,18 @@ __attribute__((always_inline)) inline static void scheduler_yield() {
 }
 
 static void killThread() {
+	ATOMIC_START();
+	DEBUG_PRINTF("Finished Thread with id: %d", gRunningThread);
 	gThreads[gRunningThread].state = THREAD_DONE;
 	scheduler_yield();
+	ATOMIC_END();
 }
 
 static uint32_t* allocateStack(threadID id, void *threadFunction) {
 	t_stackFrame *stack = &gStackMap[id];
-	stack->xpsr = (1 << 24);					 // special function register: value reverse engineered with debugger
-	stack->pc = (uint32_t) threadFunction;		 // set program counter to thread function
-	stack->lr = (uint32_t) killThread; // function called at end of thread
+	stack->xpsr = (1 << 24);				// special function register: value reverse engineered with debugger
+	stack->pc = (uint32_t) threadFunction;	// set program counter to thread function
+	stack->lr = (uint32_t) killThread; 		// function called at end of thread
 	stack->r12 = 0x0000000C;
 	stack->r3 = 0x00000003;
 	stack->r2 = 0x00000002;
@@ -192,10 +196,10 @@ void scheduler_startThread(threadFunc tFunc) {
 	uint32_t ret = getFreeThreadSlot(&newThread);
 
 	if (ret != 0) {
-		printf("Thread init failed already %i threads defined\n", MAX_THREADS);
+		DEBUG_PRINTF("Thread init failed already %i threads defined\n", MAX_THREADS);
 		return;
 	}
-
+	DEBUG_PRINTF("Started Thread with id: %d", newThread);
 	gThreads[newThread].state = THREAD_READY;
 	gThreads[newThread].threadFunc = tFunc;
 	uint32_t msp = __get_MSP(); // backup main stack pointer
@@ -225,10 +229,11 @@ void scheduler_startThread(threadFunc tFunc) {
  * @return 0 if init done, 1 if returning from thread
  */
 void scheduler_init(void) {
+	DEBUG_PRINTF("Start scheduler!");
 	scheduler_startThread(&idle);
 	/*
 	 * set to running to resume main thread when entering
-	 * scheduler_runNextThread
+	 * runNextThread
 	 */
 	gThreads[MAX_THREADS - 1].state = THREAD_RUNNING;
 	timers_init(TIMESLICE_MS);

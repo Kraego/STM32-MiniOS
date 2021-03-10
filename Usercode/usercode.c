@@ -25,18 +25,16 @@ void flashRedThreadForever() {
 }
 
 void printSome() {
-	DEBUG_PRINTF("Print 1 ... ");
-	DEBUG_PRINTF("Print 2 ... ");
-	DEBUG_PRINTF("Print 3 ... ");
-	DEBUG_PRINTF("Print 4 ... ");
-	DEBUG_PRINTF("Print 5 ... ");
+	DEBUG_PRINTF("Test 1 ... ");
+	DEBUG_PRINTF("Test 2 ... ");
+	DEBUG_PRINTF("Test 3 ... ");
+	DEBUG_PRINTF("Test 4 ... ");
+	DEBUG_PRINTF("Test 5 ... ");
 }
 
 void runExample() {
-	DEBUG_PRINTF("Start scheduler!");
-	DEBUG_PRINTF("Start Main thread");
 	scheduler_init();
-	// scheduler_startThread(&printSome);
+	scheduler_startThread(&printSome);
 	scheduler_startThread(&flashGreenThreadForever);
 	scheduler_startThread(&flashRedThreadForever);
 }
