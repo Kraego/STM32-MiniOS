@@ -39,30 +39,32 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
   * Demo Usage: Usercode/usercode.c   
 * Usage Example - green and red LED should flash in parallel:
 ``` C
-void flashGreenThreadForever()
-{
-	while(true)
-	{
+void flashGreenThreadForever() {
+	while (true) {
 		BSP_LED_Toggle(LED_GREEN);
 		scheduler_sleep(50);
 	}
 }
 
-void flashRedThreadForever()
-{
-	while(true)
-	{
+void flashRedThreadForever() {
+	while (true) {
 		BSP_LED_Toggle(LED_RED);
 		scheduler_sleep(50);
 	}
 }
 
-void runExample()
-{
-	DEBUG_PRINTF("Start scheduler!");
+void printSome() {
+	DEBUG_PRINTF("Test 1 ... ");
+	DEBUG_PRINTF("Test 2 ... ");
+	DEBUG_PRINTF("Test 3 ... ");
+	DEBUG_PRINTF("Test 4 ... ");
+	DEBUG_PRINTF("Test 5 ... ");
+}
+
+void runExample() {
 	scheduler_init();
+	scheduler_startThread(&printSome);
 	scheduler_startThread(&flashGreenThreadForever);
 	scheduler_startThread(&flashRedThreadForever);
 }
-  
 ```
