@@ -10,25 +10,21 @@
 #include "debug.h"
 #include "scheduler.h"
 
-void flashGreenThreadForever()
-{
-	while(true)
-	{
+void flashGreenThreadForever() {
+	while (true) {
 		BSP_LED_Toggle(LED_GREEN);
 		scheduler_sleep(50);
 	}
 }
 
-void flashRedThreadForever()
-{
-	while(true)
-	{
+void flashRedThreadForever() {
+	while (true) {
 		BSP_LED_Toggle(LED_RED);
 		scheduler_sleep(50);
 	}
 }
 
-void printSome(){
+void printSome() {
 	DEBUG_PRINTF("Print 1 ... ");
 	DEBUG_PRINTF("Print 2 ... ");
 	DEBUG_PRINTF("Print 3 ... ");
@@ -36,8 +32,7 @@ void printSome(){
 	DEBUG_PRINTF("Print 5 ... ");
 }
 
-void runExample()
-{
+void runExample() {
 	DEBUG_PRINTF("Start scheduler!");
 	DEBUG_PRINTF("Start Main thread");
 	scheduler_init();

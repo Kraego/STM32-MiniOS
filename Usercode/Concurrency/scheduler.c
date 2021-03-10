@@ -131,7 +131,7 @@ static void runNextThread() {
 	ATOMIC_END();
 }
 
-__attribute__((always_inline)) inline void scheduler_yield() {
+__attribute__((always_inline)) inline static void scheduler_yield() {
 	NVIC_SetPendingIRQ(TIM1_CC_IRQn);
 }
 
@@ -154,6 +154,11 @@ static uint32_t* allocateStack(threadID id, void *threadFunction) {
 	stack->lr_irq_dummy = 0xFFFFFFF9; //LR - Return to Thread mode using MSP...main stack pointer
 	stack->dummy = 0xDEADBEEF;
 	return &stack->dummy;
+}
+
+static void idle() {
+	while (true)
+		;
 }
 
 void TIM1_CC_IRQHandler() {
@@ -212,10 +217,6 @@ void scheduler_startThread(threadFunc tFunc) {
 		__ASM volatile ("sub r7, #32");
 	}
 	ATOMIC_END();
-}
-
-static void idle() {
-	while (true);
 }
 
 /**
