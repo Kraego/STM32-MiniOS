@@ -1,5 +1,13 @@
+<!-- omit in toc -->
 # STM32L476_MiniOS
+
 Demonstration: How to implement a preemptive multitasking OS on embedded devices.
+
+**Content:**
+- [Development](#development)
+- [What is this about?](#what-is-this-about)
+- [What is it not?](#what-is-it-not)
+- [About](#about)
 
 ## Development
 * Hardware: STM32L476G-DISCO Board
