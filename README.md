@@ -18,11 +18,11 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
 
 ## What is this about?
 
-* this is a demonstration how to create a preemptive multitasking system which can run threads (using setjmp/longjmp, and a timer for preemptive scheduling)
+* This is a demonstration how to create a preemptive multitasking system which can run threads (using setjmp/longjmp, and a timer for preemptive scheduling)
 
 ## What is it not?
 
-* a implementation to use in production. If you need preemptive multithreading use RTOS or something similar.
+* A implementation to use in production. If you need preemptive multithreading use RTOS or something similar.
 
 ## About
 
