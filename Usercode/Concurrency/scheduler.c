@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <setjmp.h>
-#include <cmsis_gcc.h> // intrinsics (__x functions)
+#include <cmsis_gcc.h> // for intrinsics (__x functions)
 #include "stm32l476xx.h"
 #include "stm32l4xx_hal.h"
 #include "timers.h"
@@ -19,6 +19,7 @@
 #define MAX_THREADS			(100)
 #define TIMESLICE_MS		(10)
 
+// local types
 typedef enum {
 	THREAD_NEW = 0, THREAD_READY = 1, THREAD_RUNNING = 2, THREAD_SLEEPING = 3, THREAD_BLOCKED = 4, THREAD_DONE = 5
 } thread_state;
@@ -30,6 +31,9 @@ typedef struct {
 	uint32_t sleepCount;	// sleeptime in ms
 } t_thread;
 
+/**
+ * type for thread stack frame
+ */
 typedef struct {
 	uint32_t space[128];
 	uint32_t dummy;
@@ -43,10 +47,11 @@ typedef struct {
 	uint32_t lr;
 	uint32_t pc;
 	uint32_t xpsr;
-}t_stackFrame;
+} t_stackFrame;
 
 typedef uint32_t threadID;
 
+// Global stuff
 static threadID gRunningThread = (MAX_THREADS - 1);
 static t_thread gThreads[MAX_THREADS] = { };
 static t_stackFrame gStackMap[MAX_THREADS] = { };
@@ -137,16 +142,16 @@ static void scheduler_killThread() {
 
 static uint32_t* scheduler_allocateStack(threadID id, void *threadFunction) {
 	t_stackFrame *stack = &gStackMap[id];
-	stack->xpsr = (1 << 24);
-	stack->pc = (uint32_t) threadFunction;
-	stack->lr = (uint32_t) scheduler_killThread;
+	stack->xpsr = (1 << 24);					 // special function register: value reverse engineered with debugger
+	stack->pc = (uint32_t) threadFunction;		 // set program counter to thread function
+	stack->lr = (uint32_t) scheduler_killThread; // function called at end of thread
 	stack->r12 = 0x0000000C;
 	stack->r3 = 0x00000003;
 	stack->r2 = 0x00000002;
 	stack->r1 = 0x00000001;
 	stack->r0 = 0x0;
 
-	stack->lr_irq_dummy = 0xFFFFFFF9; //LR
+	stack->lr_irq_dummy = 0xFFFFFFF9; //LR - Return to Thread mode using MSP...main stack pointer
 	stack->dummy = 0xDEADBEEF;
 	return &stack->dummy;
 }
@@ -188,22 +193,22 @@ void scheduler_startThread(threadFunc tFunc) {
 
 	gThreads[newThread].state = THREAD_READY;
 	gThreads[newThread].threadFunc = tFunc;
-	uint32_t msp = __get_MSP();
+	uint32_t msp = __get_MSP(); // backup main stack pointer
 
 	__set_MSP((uint32_t) scheduler_allocateStack(newThread, tFunc));
 
 	if (setjmp(gThreads[newThread].context) == 0) { // current context saved jump out
 		__set_MSP(msp); // keep old stack Pointer
 	} else { // running here as active Thread
-		__ASM volatile ("add r7, r13, #0"); 	//r13 = sp
+		//r13 = SP (Stack pointer)
+		__ASM volatile ("add r7, r13, #0");
 		__ASM volatile ("sub r7, #32");
 	}
 	ATOMIC_END();
 }
 
 static void idle() {
-	while (true)
-		;
+	while (true);
 }
 
 /**

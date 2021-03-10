@@ -10,7 +10,6 @@
 #include "debug.h"
 #include "scheduler.h"
 
-
 void flashGreenThreadForever()
 {
 	while(true)
@@ -36,7 +35,6 @@ void printSome(){
 	DEBUG_PRINTF("Print 4 ... ");
 	DEBUG_PRINTF("Print 5 ... ");
 }
-
 
 void runExample()
 {
