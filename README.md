@@ -37,3 +37,32 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
 * OS Implementation:
   * Preemptive Scheduling: Usercode/Concurrency/scheduler.c
   * Demo Usage: Usercode/usercode.c   
+* Usage Example:
+``` C
+void flashGreenThreadForever()
+{
+	while(true)
+	{
+		BSP_LED_Toggle(LED_GREEN);
+		scheduler_sleep(50);
+	}
+}
+
+void flashRedThreadForever()
+{
+	while(true)
+	{
+		BSP_LED_Toggle(LED_RED);
+		scheduler_sleep(50);
+	}
+}
+
+void runExample()
+{
+	DEBUG_PRINTF("Start scheduler!");
+	scheduler_init();
+	scheduler_startThread(&flashGreenThreadForever);
+	scheduler_startThread(&flashRedThreadForever);
+}
+  
+```

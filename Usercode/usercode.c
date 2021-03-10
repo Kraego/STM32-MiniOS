@@ -10,8 +10,6 @@
 #include "debug.h"
 #include "scheduler.h"
 
-#define STACK_SIZE_BYTES	(1024)
-
 
 void flashGreenThreadForever()
 {
@@ -45,9 +43,7 @@ void runExample()
 	DEBUG_PRINTF("Start scheduler!");
 	DEBUG_PRINTF("Start Main thread");
 	scheduler_init();
-	//scheduler_startThread(&printSome);
+	// scheduler_startThread(&printSome);
 	scheduler_startThread(&flashGreenThreadForever);
 	scheduler_startThread(&flashRedThreadForever);
-
-	while(true);
 }
