@@ -64,7 +64,7 @@ static void ATOMIC_END() {
 	__enable_irq();
 }
 
-static void scheduler_UpdateThreads() {
+static void updateThreads() {
 	threadID index = MAX_THREADS;
 
 	while (index--) {
@@ -77,8 +77,8 @@ static void scheduler_UpdateThreads() {
 	}
 }
 
-static threadID scheduler_nextThread() {
-	scheduler_UpdateThreads();
+static threadID getNextThread() {
+	updateThreads();
 	threadID currentId = gRunningThread;
 
 	while (gThreads[currentId].state != THREAD_READY) {
@@ -91,7 +91,7 @@ static threadID scheduler_nextThread() {
 	return currentId;
 }
 
-static uint32_t scheduler_getFreeThreadSlot(threadID *newThread) {
+static uint32_t getFreeThreadSlot(threadID *newThread) {
 	threadID id = MAX_THREADS;
 
 	while (id--) {
@@ -107,15 +107,15 @@ static uint32_t scheduler_getFreeThreadSlot(threadID *newThread) {
 	return -1;
 }
 
-static void scheduler_runNextThread() {
+static void runNextThread() {
 	ATOMIC_START();
-	threadID nextThread = scheduler_nextThread();
+	threadID nextThread = getNextThread();
 
 	switch (gThreads[nextThread].state) {
 	case THREAD_RUNNING:
 		break; // already running
 	case THREAD_READY:
-		if (setjmp(gThreads[gRunningThread].context) == 0) { // jump out if longjump called with 1
+		if (setjmp(gThreads[gRunningThread].context) == 0) { // jump out if longjmp called with 1
 			//	saved current execution state
 			if (gThreads[gRunningThread].state == THREAD_RUNNING) {
 				gThreads[gRunningThread].state = THREAD_READY;
@@ -135,16 +135,16 @@ __attribute__((always_inline)) inline void scheduler_yield() {
 	NVIC_SetPendingIRQ(TIM1_CC_IRQn);
 }
 
-static void scheduler_killThread() {
+static void killThread() {
 	gThreads[gRunningThread].state = THREAD_DONE;
 	scheduler_yield();
 }
 
-static uint32_t* scheduler_allocateStack(threadID id, void *threadFunction) {
+static uint32_t* allocateStack(threadID id, void *threadFunction) {
 	t_stackFrame *stack = &gStackMap[id];
 	stack->xpsr = (1 << 24);					 // special function register: value reverse engineered with debugger
 	stack->pc = (uint32_t) threadFunction;		 // set program counter to thread function
-	stack->lr = (uint32_t) scheduler_killThread; // function called at end of thread
+	stack->lr = (uint32_t) killThread; // function called at end of thread
 	stack->r12 = 0x0000000C;
 	stack->r3 = 0x00000003;
 	stack->r2 = 0x00000002;
@@ -160,7 +160,7 @@ void TIM1_CC_IRQHandler() {
 	// Clear pending bit
 	tim1_t *timerConfig = TIM1_REG;
 	timerConfig->SR &= ~(1 << (1));
-	scheduler_runNextThread();
+	runNextThread();
 }
 
 /**
@@ -184,7 +184,7 @@ void scheduler_sleep(uint32_t sleepCount) {
 void scheduler_startThread(threadFunc tFunc) {
 	ATOMIC_START();
 	threadID newThread = THREAD_ID_INVALID;
-	uint32_t ret = scheduler_getFreeThreadSlot(&newThread);
+	uint32_t ret = getFreeThreadSlot(&newThread);
 
 	if (ret != 0) {
 		printf("Thread init failed already %i threads defined\n", MAX_THREADS);
@@ -195,12 +195,19 @@ void scheduler_startThread(threadFunc tFunc) {
 	gThreads[newThread].threadFunc = tFunc;
 	uint32_t msp = __get_MSP(); // backup main stack pointer
 
-	__set_MSP((uint32_t) scheduler_allocateStack(newThread, tFunc));
+	__set_MSP((uint32_t) allocateStack(newThread, tFunc));
 
-	if (setjmp(gThreads[newThread].context) == 0) { // current context saved jump out
-		__set_MSP(msp); // keep old stack Pointer
-	} else { // running here as active Thread
-		//r13 = SP (Stack pointer)
+	if (setjmp(gThreads[newThread].context) == 0) {
+		/*
+		 * current context saved jump out
+		 * keep old stack Pointer
+		 */
+		__set_MSP(msp);
+	} else {
+		/*
+		 * running here as active Thread
+		 * r13 = SP (Stack pointer)
+		 */
 		__ASM volatile ("add r7, r13, #0");
 		__ASM volatile ("sub r7, #32");
 	}
@@ -218,6 +225,10 @@ static void idle() {
  */
 void scheduler_init(void) {
 	scheduler_startThread(&idle);
+	/*
+	 * set to running to resume main thread when entering
+	 * scheduler_runNextThread
+	 */
 	gThreads[MAX_THREADS - 1].state = THREAD_RUNNING;
 	timers_init(TIMESLICE_MS);
 }
