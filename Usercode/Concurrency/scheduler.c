@@ -8,17 +8,47 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <cmsis_gcc.h>
+#include <setjmp.h>
+#include <cmsis_gcc.h> // intrinsics (__x functions)
 #include "stm32l476xx.h"
 #include "stm32l4xx_hal.h"
 #include "timers.h"
 #include "scheduler.h"
 
-#define MAX_THREADS			(4)
+#define THREAD_ID_INVALID	(-1)
+#define MAX_THREADS			(100)
 #define TIMESLICE_MS		(10)
 
-threadID gRunningThread = (MAX_THREADS - 1);
-t_thread gThreads[MAX_THREADS] = { };
+typedef enum {
+	THREAD_NEW = 0, THREAD_READY = 1, THREAD_RUNNING = 2, THREAD_SLEEPING = 3, THREAD_BLOCKED = 4, THREAD_DONE = 5
+} thread_state;
+
+typedef struct {
+	thread_state state;		// threadstate
+	jmp_buf context; 		// TCB
+	threadFunc threadFunc; 	// function to execute
+	uint32_t sleepCount;	// sleeptime in ms
+} t_thread;
+
+typedef struct {
+	uint32_t space[128];
+	uint32_t dummy;
+	uint32_t lr_irq_dummy;
+
+	uint32_t r0;
+	uint32_t r1;
+	uint32_t r2;
+	uint32_t r3;
+	uint32_t r12;
+	uint32_t lr;
+	uint32_t pc;
+	uint32_t xpsr;
+}t_stackFrame;
+
+typedef uint32_t threadID;
+
+static threadID gRunningThread = (MAX_THREADS - 1);
+static t_thread gThreads[MAX_THREADS] = { };
 static t_stackFrame gStackMap[MAX_THREADS] = { };
 
 static void ATOMIC_START() {
@@ -42,11 +72,6 @@ static void scheduler_UpdateThreads() {
 	}
 }
 
-/**
- * Determine next Thread (round Robin)
- *
- * @return threadID of next Thread to run
- */
 static threadID scheduler_nextThread() {
 	scheduler_UpdateThreads();
 	threadID currentId = gRunningThread;
@@ -61,13 +86,7 @@ static threadID scheduler_nextThread() {
 	return currentId;
 }
 
-/**
- * Get free thread slot if one is free
- *
- * @param newThread slot for new thread
- * @return 0 if succeeded, -1 if there is no free slot
- */
-static threadID scheduler_getFreeThreadSlot(threadID *newThread) {
+static uint32_t scheduler_getFreeThreadSlot(threadID *newThread) {
 	threadID id = MAX_THREADS;
 
 	while (id--) {
@@ -83,9 +102,6 @@ static threadID scheduler_getFreeThreadSlot(threadID *newThread) {
 	return -1;
 }
 
-/**
- * Called by timer interrupt (Time slice)
- */
 static void scheduler_runNextThread() {
 	ATOMIC_START();
 	threadID nextThread = scheduler_nextThread();
@@ -155,6 +171,11 @@ void scheduler_sleep(uint32_t sleepCount) {
 	scheduler_yield();
 }
 
+/**
+ * Start given function as own thread
+ *
+ * @param tFunc function to run as thread
+ */
 void scheduler_startThread(threadFunc tFunc) {
 	ATOMIC_START();
 	threadID newThread = THREAD_ID_INVALID;
