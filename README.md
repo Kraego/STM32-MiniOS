@@ -12,6 +12,7 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
 ## Development
 * Hardware: STM32L476G-DISCO Board
 * For development the STM32Cube IDE is used
+  * gcc 
 * To get a highlevel API the Board BSP from ST is used
 * Debug Printouts on UART2:
   * can be activated via switch in *Usercode/Utils/debug.h*
