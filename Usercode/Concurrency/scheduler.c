@@ -54,8 +54,8 @@ typedef uint32_t threadID;
 
 // Global stuff
 static threadID gRunningThread = (MAX_THREADS - 1);
-static t_thread gThreads[MAX_THREADS] = { };
-static t_stackFrame gStackMap[MAX_THREADS] = { };
+static t_thread gThreads[MAX_THREADS] = { 0 };
+static t_stackFrame gStackMap[MAX_THREADS] = { 0 };
 
 static void ATOMIC_START() {
 	__disable_irq();
@@ -70,7 +70,7 @@ static void updateThreads() {
 
 	while (index--) {
 		if (gThreads[index].state == THREAD_SLEEPING) {
-			gThreads[index].sleepCount--;
+			gThreads[index].sleepCount -= TIMESLICE_MS;
 			if (gThreads[index].sleepCount == 0) {
 				gThreads[index].state = THREAD_READY;
 			}
@@ -175,11 +175,11 @@ void TIM1_CC_IRQHandler() {
 /**
  * Sleep for given ms
  *
- * @param sleepCount multiples of 10 ms
+ * @param duration_ms time in ms
  */
-void scheduler_sleep(uint32_t sleepCount) {
+void scheduler_sleep(uint32_t duration_ms) {
 	ATOMIC_START();
-	gThreads[gRunningThread].sleepCount = sleepCount;
+	gThreads[gRunningThread].sleepCount = duration_ms;
 	gThreads[gRunningThread].state = THREAD_SLEEPING;
 	ATOMIC_END();
 	scheduler_yield();

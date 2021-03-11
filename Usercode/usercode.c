@@ -13,14 +13,14 @@
 void flashGreenThreadForever() {
 	while (true) {
 		BSP_LED_Toggle(LED_GREEN);
-		scheduler_sleep(50);
+		scheduler_sleep(250);
 	}
 }
 
 void flashRedThreadForever() {
 	while (true) {
 		BSP_LED_Toggle(LED_RED);
-		scheduler_sleep(50);
+		scheduler_sleep(250);
 	}
 }
 
