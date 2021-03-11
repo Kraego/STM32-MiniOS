@@ -96,11 +96,7 @@ static uint32_t getFreeThreadSlot(threadID *newThread) {
 	threadID id = MAX_THREADS;
 
 	while (id--) {
-		if (gThreads[id].state == THREAD_DONE) {
-			*newThread = id;
-			return 0;
-		}
-		if (gThreads[id].state == THREAD_NEW) {
+		if (gThreads[id].state == THREAD_DONE || gThreads[id].state == THREAD_NEW) {
 			*newThread = id;
 			return 0;
 		}
@@ -132,7 +128,7 @@ static void runNextThread() {
 	ATOMIC_END();
 }
 
-__attribute__((always_inline)) inline static void scheduler_yield() {
+__attribute__((always_inline)) inline static void yield() {
 	NVIC_SetPendingIRQ(TIM1_CC_IRQn);
 }
 
@@ -140,7 +136,7 @@ static void killThread() {
 	ATOMIC_START();
 	DEBUG_PRINTF("Finished Thread with id: %d", gRunningThread);
 	gThreads[gRunningThread].state = THREAD_DONE;
-	scheduler_yield();
+	yield();
 	ATOMIC_END();
 }
 
@@ -182,7 +178,7 @@ void scheduler_sleep(uint32_t duration_ms) {
 	gThreads[gRunningThread].sleepCount = duration_ms;
 	gThreads[gRunningThread].state = THREAD_SLEEPING;
 	ATOMIC_END();
-	scheduler_yield();
+	yield();
 }
 
 /**
