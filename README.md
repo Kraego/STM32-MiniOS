@@ -30,7 +30,8 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
 
 ## What is it not?
 
-* A implementation to use in production. If you need preemptive multithreading use RTOS or something similar.
+* A implementation to use in production. If you need preemptive multithreading use RTOS or something similar. 
+* Portable to other platforms (Stackframe definition specific for ARM Cortex-M4)
 
 ## About
 
