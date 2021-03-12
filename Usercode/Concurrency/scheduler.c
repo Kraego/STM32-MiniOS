@@ -221,8 +221,6 @@ void scheduler_startThread(threadFunc tFunc) {
 
 /**
  * Initialise scheduler
- *
- * @return 0 if init done, 1 if returning from thread
  */
 void scheduler_init(void) {
 	DEBUG_PRINTF("Start scheduler!");
