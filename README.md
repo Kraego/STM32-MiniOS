@@ -15,7 +15,7 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
   * gcc 
 * To get a highlevel API the Board BSP from ST is used
 * Debug Printouts on UART2:
-  * can be activated via switch in *Usercode/Utils/debug.h*
+  * can be activated via switch in *Usercode/debug.h* or with compiler define.
   ```
   #define DEBUG_PRINT
   ```
