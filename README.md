@@ -37,9 +37,11 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
 ## About
 
 * OS Implementation:
-  * Preemptive Scheduling: Usercode/Concurrency/scheduler.c
-  * Demo Usage: Usercode/usercode.c   
-* Usage Example - printout stuff to console + green and red LED should flash in parallel forever:
+  * **Preemptive Scheduling:** Usercode/Concurrency/scheduler.c
+  * **Synchronisation Mechanism via counting semaphores:** Usercode/Concurrency/semaphore.c
+  * Demo Usage: Usercode/usercode.c
+    * To enable/disable synchronization change #define SEM_DEMO at start of usercode.c
+* Basic Usage Example - printout stuff to console + green and red LED should flash in parallel forever:
 ``` C
 void flashGreenThreadForever() {
 	while (true) {

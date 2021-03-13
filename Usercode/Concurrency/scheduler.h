@@ -2,7 +2,7 @@
  * scheduler.h
  *
  *  Created on: 24 Feb 2021
- *      Author: tkrax
+ *      Author: kraego
  */
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_

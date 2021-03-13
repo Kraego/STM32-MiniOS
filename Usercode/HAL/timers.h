@@ -2,7 +2,7 @@
  * timers.h
  *
  *  Created on: 25 Nov 2020
- *      Author: tkrax
+ *      Author: kraego
  */
 
 #ifndef TIMERS_H_

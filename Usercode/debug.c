@@ -2,7 +2,7 @@
  * debug.c
  *
  *  Created on: Jan 10, 2021
- *      Author: tkrax
+ *      Author: kraego
  */
 #include "debug.h"
 #include <string.h>

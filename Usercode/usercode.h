@@ -2,7 +2,7 @@
  * usercode.h
  *
  *  Created on: 24 Feb 2021
- *      Author: tkrax
+ *      Author: kraego
  */
 
 #ifndef USERCODE_H_

@@ -4,7 +4,7 @@
  * Debugging Helper
  *
  *  Created on: Jan 10, 2021
- *      Author: tkrax
+ *      Author: kraego
  */
 
 #ifndef UTILS_DEBUG_H_

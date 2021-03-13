@@ -2,7 +2,7 @@
  * timers.c
  *
  *  Created on: 25 Nov 2020
- *      Author: tkrax
+ *      Author: kraego
  */
 #include "timers.h"
 #include "stm32l476xx.h"

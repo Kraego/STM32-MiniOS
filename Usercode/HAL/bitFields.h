@@ -2,7 +2,7 @@
  * bitFields.h
  *
  *  Created on: 25 Nov 2020
- *      Author: tkrax
+ *      Author: kraego
  */
 
 #ifndef BITFIELDS_H_

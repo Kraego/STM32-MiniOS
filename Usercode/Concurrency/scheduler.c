@@ -2,7 +2,7 @@
  * scheduler.c
  *
  *  Created on: 24 Feb 2021
- *      Author: tkrax
+ *      Author: kraego
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +15,8 @@
 #include "debug.h"
 #include "timers.h"
 #include "scheduler.h"
+#include "private/atomic.h"
+#include "private/scheduler_private.h"
 
 #define THREAD_ID_INVALID	(-1)
 #define MAX_THREADS			(20)
@@ -50,20 +52,9 @@ typedef struct {
 	uint32_t xpsr;
 } t_stackFrame;
 
-typedef uint32_t threadID;
-
 // Global stuff
-static threadID gRunningThread = (MAX_THREADS - 1);
 static t_thread gThreads[MAX_THREADS] = { 0 };
 static t_stackFrame gStackMap[MAX_THREADS] = { 0 };
-
-static void ATOMIC_START() {
-	__disable_irq();
-}
-
-static void ATOMIC_END() {
-	__enable_irq();
-}
 
 static void updateThreads() {
 	threadID index = MAX_THREADS;
@@ -104,7 +95,7 @@ static uint32_t getFreeThreadSlot(threadID *newThread) {
 	return -1;
 }
 
-static void runNextThread() {
+static void scheduler_runNextThread() {
 	ATOMIC_START();
 	threadID nextThread = getNextThread();
 
@@ -134,7 +125,7 @@ __attribute__((always_inline)) inline static void yield() {
 
 static void killThread() {
 	ATOMIC_START();
-	DEBUG_PRINTF("Finished Thread with id: %d", gRunningThread);
+	DEBUG_PRINTF("Finishing Thread with id: %d", gRunningThread);
 	gThreads[gRunningThread].state = THREAD_DONE;
 	yield();
 	ATOMIC_END();
@@ -165,7 +156,7 @@ void TIM1_CC_IRQHandler() {
 	// Clear pending bit
 	tim1_t *timerConfig = TIM1_REG;
 	timerConfig->SR &= ~(1 << (1));
-	runNextThread();
+	scheduler_runNextThread();
 }
 
 /**
@@ -224,6 +215,7 @@ void scheduler_startThread(threadFunc tFunc) {
  */
 void scheduler_init(void) {
 	DEBUG_PRINTF("Start scheduler!");
+	gRunningThread = (MAX_THREADS - 1);
 	scheduler_startThread(&idle);
 	/*
 	 * set to running to resume main thread when entering
@@ -231,4 +223,21 @@ void scheduler_init(void) {
 	 */
 	gThreads[MAX_THREADS - 1].state = THREAD_RUNNING;
 	timers_init(TIMESLICE_MS);
+}
+
+/**
+ * Block current Thread
+ */
+void scheduler_blockThread(){
+	gThreads[gRunningThread].state = THREAD_BLOCKED;
+	yield();
+}
+
+/**
+ * Resume thread
+ *
+ * @param thread to resume
+ */
+void scheduler_unblockThread(threadID thread){
+	gThreads[thread].state = THREAD_READY;
 }
