@@ -8,7 +8,13 @@
 #include <stdlib.h>
 #include "queue.h"
 
-
+/**
+ * Initialize a new queue on heap.
+ *
+ * @param (out) queue the queue
+ * @param capacity of the queue
+ * @return 0 if successful, otherwise -1 or -2 if memory problems occur
+ */
 uint32_t queue_Init(t_Queue **queue, uint32_t capacity) {
 	*queue = (t_Queue *) malloc(sizeof(t_Queue));
 
