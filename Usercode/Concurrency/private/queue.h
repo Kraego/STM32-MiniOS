@@ -15,9 +15,9 @@ typedef struct {
 	uint32_t *queue;
 }t_Queue;
 
-uint32_t queue_Init(t_Queue **queue, uint32_t capacity);
-uint32_t queue_Enqueue(t_Queue *queue, uint32_t data);
-uint32_t queue_Dequeue(t_Queue *queue);
-void queue_Delete(t_Queue *queue);
+uint32_t queue_init(t_Queue **queue, uint32_t capacity);
+uint32_t queue_enqueue(t_Queue *queue, uint32_t data);
+uint32_t queue_dequeue(t_Queue *queue);
+void queue_delete(t_Queue *queue);
 
 #endif /* PRIVATE_QUEUE_H_ */

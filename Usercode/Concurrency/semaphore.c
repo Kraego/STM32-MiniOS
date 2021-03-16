@@ -39,7 +39,7 @@ semID semaphore_create(uint32_t count, sem_state state) {
 	gSemaphores[semId].id = semId;
 	gSemaphores[semId].count = state == FULL ? MAX_SEMS : 0;
 
-	blockedQueueSuccess = queue_Init(&(gSemaphores[semId].blockedThreads) , MAX_SEMS) == 0;
+	blockedQueueSuccess = queue_init(&(gSemaphores[semId].blockedThreads) , MAX_SEMS) == 0;
 
 	return blockedQueueSuccess ? semId : SEM_ID_INVALID;
 }
@@ -56,7 +56,7 @@ void semaphore_take(semID sem) {
 		gSemaphores[sem].count--;
 		ATOMIC_END();
 	} else {
-		queue_Enqueue(gSemaphores[sem].blockedThreads, gRunningThread);
+		queue_enqueue(gSemaphores[sem].blockedThreads, gRunningThread);
 		ATOMIC_END();
 		scheduler_blockThread();
 	}
@@ -72,7 +72,7 @@ void semaphore_give(semID sem) {
 
 	if (gSemaphores[sem].blockedThreads->rear > 0) {
 		scheduler_unblockThread(gSemaphores[sem].blockedThreads->queue[0]);
-		queue_Dequeue(gSemaphores[sem].blockedThreads);
+		queue_dequeue(gSemaphores[sem].blockedThreads);
 	}
 	gSemaphores[sem].count = (gSemaphores[sem].count + 1) % MAX_SEMS;
 	ATOMIC_END();

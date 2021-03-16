@@ -15,7 +15,7 @@
  * @param capacity of the queue
  * @return 0 if successful, otherwise -1 or -2 if memory problems occur
  */
-uint32_t queue_Init(t_Queue **queue, uint32_t capacity) {
+uint32_t queue_init(t_Queue **queue, uint32_t capacity) {
 	*queue = (t_Queue *) malloc(sizeof(t_Queue));
 
 	if (*queue == NULL){
@@ -35,7 +35,7 @@ uint32_t queue_Init(t_Queue **queue, uint32_t capacity) {
  * @param data to append
  * @return 0 if successful, -1 otherwise (overflow)
  */
-uint32_t queue_Enqueue(t_Queue *queue, uint32_t data) {
+uint32_t queue_enqueue(t_Queue *queue, uint32_t data) {
 	if (queue->capacity == queue->rear) {
 		return -1;
 	} else {
@@ -50,7 +50,7 @@ uint32_t queue_Enqueue(t_Queue *queue, uint32_t data) {
  *
  * @return 0 if successful, -1 otherwise (empty queue)
  */
-uint32_t queue_Dequeue(t_Queue *queue) {
+uint32_t queue_dequeue(t_Queue *queue) {
 	if (queue->front == queue->rear) {
 		return -1;
 	} else {
@@ -67,7 +67,7 @@ uint32_t queue_Dequeue(t_Queue *queue) {
  *
  * @param queue to delete
  */
-void queue_Delete(t_Queue *queue) {
+void queue_delete(t_Queue *queue) {
 	free(queue->queue);
 	free(queue);
 }
