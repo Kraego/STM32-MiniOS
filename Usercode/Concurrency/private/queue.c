@@ -9,7 +9,7 @@
 #include "queue.h"
 
 /**
- * Initialize a new queue on heap.
+ * Initialize a new queue on heap
  *
  * @param (out) queue the queue
  * @param capacity of the queue
@@ -30,10 +30,10 @@ uint32_t queue_Init(t_Queue **queue, uint32_t capacity) {
 }
 
 /**
- * Insert data in queue
+ * Append data to rear of queue
  *
- * @param data to insert
- * @return 0 if success, -1 otherwise (overflow)
+ * @param data to append
+ * @return 0 if successful, -1 otherwise (overflow)
  */
 uint32_t queue_Enqueue(t_Queue *queue, uint32_t data) {
 	if (queue->capacity == queue->rear) {
@@ -48,7 +48,7 @@ uint32_t queue_Enqueue(t_Queue *queue, uint32_t data) {
 /**
  * Remove first
  *
- * @return 0 if successfull, -1 otherwise (empty queue)
+ * @return 0 if successful, -1 otherwise (empty queue)
  */
 uint32_t queue_Dequeue(t_Queue *queue) {
 	if (queue->front == queue->rear) {
@@ -62,6 +62,11 @@ uint32_t queue_Dequeue(t_Queue *queue) {
 	return 0;
 }
 
+/**
+ * Delete queue
+ *
+ * @param queue to delete
+ */
 void queue_Delete(t_Queue *queue) {
 	free(queue->queue);
 	free(queue);
