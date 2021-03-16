@@ -4,7 +4,6 @@
  *  Created on: 13 Mar 2021
  *      Author: kraego
  */
-#include <stdint.h>
 #include <stdbool.h>
 #include "semaphore.h"
 #include "private/queue.h"

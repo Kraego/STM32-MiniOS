@@ -8,6 +8,8 @@
 #ifndef PRIVATE_SEMAPHORE_H_
 #define PRIVATE_SEMAPHORE_H_
 
+#include <stdint.h>
+
 #define SEM_ID_INVALID ((semID) -1)
 
 typedef enum {
@@ -19,5 +21,6 @@ typedef uint32_t semID;
 semID semaphore_create(uint32_t count, sem_state state);
 void semaphore_take(semID sem);
 void semaphore_give(semID sem);
+uint32_t semaphore_delete(semID sem);
 
 #endif /* PRIVATE_SEMAPHORE_H_ */
