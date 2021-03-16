@@ -8,6 +8,8 @@
 #ifndef PRIVATE_QUEUE_H_
 #define PRIVATE_QUEUE_H_
 
+#include <stdint.h>
+
 typedef struct {
 	uint32_t capacity;
 	uint32_t front;

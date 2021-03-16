@@ -77,3 +77,22 @@ void semaphore_give(semID sem) {
 	gSemaphores[sem].count = (gSemaphores[sem].count + 1) % MAX_SEMS;
 	ATOMIC_END();
 }
+
+/**
+ * Delete Semaphore
+ *
+ * @param sem the id of the semaphore
+ *
+ * return 0 on success, -1 if there are any blocked threads
+ */
+uint32_t semaphore_delete(semID sem) {
+	ATOMIC_START();
+
+	if (gSemaphores[sem].blockedThreads->rear > 0) {
+		return -1;
+	}
+	gSemaphores[sem].id = SEM_ID_INVALID;
+	queue_delete(gSemaphores[sem].blockedThreads);
+	ATOMIC_END();
+	return 0;
+}
