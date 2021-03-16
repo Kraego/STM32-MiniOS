@@ -5,7 +5,9 @@
  *      Author: kraego
  */
 #include <stdint.h>
+#include <stdbool.h>
 #include "semaphore.h"
+#include "private/queue.h"
 #include "private/atomic.h"
 #include "private/scheduler_private.h"
 
@@ -14,8 +16,7 @@
 typedef struct {
 	semID id;
 	uint32_t count;
-	uint32_t blockedCount;
-	threadID blockedThreads[MAX_SEMS];
+	t_Queue *blockedThreads;
 } t_semaphore;
 
 static uint32_t gSemcount = 0;
@@ -33,10 +34,14 @@ semID semaphore_create(uint32_t count, sem_state state) {
 		return SEM_ID_INVALID;
 	}
 	uint32_t semId = gSemcount;
+	bool blockedQueueSuccess = false;
 	gSemcount++;
 	gSemaphores[semId].id = semId;
 	gSemaphores[semId].count = state == FULL ? MAX_SEMS : 0;
-	return semId;
+
+	blockedQueueSuccess = queue_Init(&(gSemaphores[semId].blockedThreads) , MAX_SEMS) == 0;
+
+	return blockedQueueSuccess ? semId : SEM_ID_INVALID;
 }
 
 /**
@@ -51,8 +56,7 @@ void semaphore_take(semID sem) {
 		gSemaphores[sem].count--;
 		ATOMIC_END();
 	} else {
-		gSemaphores[sem].blockedThreads[gSemaphores[sem].blockedCount] = gRunningThread;
-		gSemaphores[sem].blockedCount++;
+		queue_Enqueue(gSemaphores[sem].blockedThreads, gRunningThread);
 		ATOMIC_END();
 		scheduler_blockThread();
 	}
@@ -66,9 +70,9 @@ void semaphore_take(semID sem) {
 void semaphore_give(semID sem) {
 	ATOMIC_START();
 
-	if (gSemaphores[sem].blockedCount > 0) {
-		scheduler_unblockThread(gSemaphores[sem].blockedThreads[0]);
-		gSemaphores[sem].blockedCount--;
+	if (gSemaphores[sem].blockedThreads->rear > 0) {
+		scheduler_unblockThread(gSemaphores[sem].blockedThreads->queue[0]);
+		queue_Dequeue(gSemaphores[sem].blockedThreads);
 	}
 	gSemaphores[sem].count = (gSemaphores[sem].count + 1) % MAX_SEMS;
 	ATOMIC_END();
