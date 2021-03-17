@@ -31,7 +31,7 @@ typedef struct {
 	thread_state state;		// threadstate
 	jmp_buf context; 		// TCB
 	threadFunc threadFunc; 	// function to execute
-	uint32_t sleepCount;	// sleeptime in ms
+	uint32_t sleepCount;		// sleeptime in ms
 } t_thread;
 
 /**
@@ -61,7 +61,8 @@ static void updateThreads() {
 
 	while (index--) {
 		if (gThreads[index].state == THREAD_SLEEPING) {
-			gThreads[index].sleepCount -= TIMESLICE_MS;
+			uint32_t sleep = gThreads[index].sleepCount;
+			gThreads[index].sleepCount = sleep >= TIMESLICE_MS ? sleep - TIMESLICE_MS : 0;
 			if (gThreads[index].sleepCount == 0) {
 				gThreads[index].state = THREAD_READY;
 			}
