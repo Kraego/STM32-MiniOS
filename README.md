@@ -36,11 +36,12 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
 * Portable to other platforms (Stackframe definition specific for ARM Cortex-M4)
 
 ## How to port this to another platform?
-1. You need everything in *Usercode/Concurrency* + *debug.c, debug.h*
-2. Adaptions in *scheduler.c*
+1. You need everything in *Usercode/Concurrency*
+2. remove or implement methods according to Usercode/debug.c
+3. Adaptions in *scheduler.c*
    1. redefine *t_stackFrame* according to your platform
    2. allocate stackframe correct in *allocateStack*
-   3. change interrupt stuff to match your platform
+   3. change this to match your platform
       1. if you not using *cmsis_gcc.h* find out how to set/get the stackpointer
       2. yield ... exit pending interrupt
       3. *void TIM1_CC_IRQHandler()* - this is the timer interupt for preemptive scheduling
