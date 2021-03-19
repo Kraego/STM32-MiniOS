@@ -35,7 +35,8 @@ typedef struct {
 } t_thread;
 
 /**
- * type for thread stack frame
+ * type for thread stack frame, this depends on your platform
+ * f.e.: here for STM32L4 ARM® Cortex®-M4
  */
 typedef struct {
 	uint32_t space[256];

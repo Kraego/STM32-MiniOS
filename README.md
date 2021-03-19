@@ -7,6 +7,7 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
 - [Development](#development)
 - [What is this about?](#what-is-this-about)
 - [What is it not?](#what-is-it-not)
+- [How to port this to another platform?](#how-to-port-this-to-another-platform)
 - [About](#about)
 
 ## Development
@@ -33,6 +34,17 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
 
 * A implementation to use in production. If you need preemptive multithreading use RTOS or something similar. 
 * Portable to other platforms (Stackframe definition specific for ARM Cortex-M4)
+
+## How to port this to another platform?
+1. You need everything in *Usercode/Concurrency* + *debug.c, debug.h*
+2. Adaptions in *scheduler.c*
+   1. redefine *t_stackFrame* according to your platform
+   2. allocate stackframe correct in *allocateStack*
+   3. change interrupt stuff to match your platform
+      1. if you not using *cmsis_gcc.h* find out how to set/get the stackpointer
+      2. yield ... exit pending interrupt
+      3. *void TIM1_CC_IRQHandler()* - this is the timer interupt for preemptive scheduling
+      4. *timers_init()* - creating a timer which calls the the timer interrupt at a rate of *TIMESLICE_MS*
 
 ## About
 
