@@ -10,6 +10,10 @@ Demonstration: How to implement a preemptive multitasking OS on embedded devices
 - [How to port this to another platform?](#how-to-port-this-to-another-platform)
 - [About](#about)
 
+## Contribution
+* If you want to port this implementation fork me
+* If you have improvements at your hand send me an PR
+
 ## Development
 * Hardware: STM32L476G-DISCO Board
 * For development the STM32Cube IDE is used
