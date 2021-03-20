@@ -3,7 +3,8 @@
 
 Demonstration: How to implement a preemptive multitasking OS on embedded devices.
 
-**Content:**
+**Contribution:**
+- [Contribution](#contribution)
 - [Development](#development)
 - [What is this about?](#what-is-this-about)
 - [What is it not?](#what-is-it-not)
